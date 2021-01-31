@@ -105,37 +105,33 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
-
-
-                String id = String.valueOf(currentUser.getEmail().hashCode());
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                String path = "Users/" + id;
-                System.out.println(path);
-                DatabaseReference myRef = database.getReference(path);
-                //myRef = myRef.getDatabase().getReference("IsProducer");
-                myRef = myRef.child("IsProducer");
-               myRef.addValueEventListener(new ValueEventListener() {
-                   @Override
-                   public void onDataChange(@NonNull DataSnapshot snapshot) {
-                       Intent intent;
-                       System.out.println(snapshot);
-                       isProducer = snapshot.getValue().toString();
-                       if (isProducer.equals("false")) {
-                           intent = new Intent(MainActivity.this, MenuActivity.class);
-                       }
-                       else {
-                           intent = new Intent(MainActivity.this, ProducersActivity.class);
-                       }
-
-                       startActivity(intent);
+            String id = String.valueOf(currentUser.getEmail().hashCode());
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            String path = "Users/" + id;
+            DatabaseReference myRef = database.getReference(path);
+            myRef = myRef.child("IsProducer");
+            myRef.addValueEventListener(new ValueEventListener() {
+               @Override
+               public void onDataChange(@NonNull DataSnapshot snapshot) {
+                   Intent intent;
+                   System.out.println(snapshot);
+                   isProducer = snapshot.getValue().toString();
+                   if (isProducer.equals("false")) {
+                       intent = new Intent(MainActivity.this, MenuActivity.class);
+                   }
+                   else {
+                       intent = new Intent(MainActivity.this, ProducersActivity.class);
                    }
 
-                   @Override
-                   public void onCancelled(@NonNull DatabaseError error) {
+                   startActivity(intent);
+               }
 
-                   }
-               });
-            }
+               @Override
+               public void onCancelled(@NonNull DatabaseError error) {
+
+               }
+           });
+        }
     }
 
     private void createAccount(String email, String password) {

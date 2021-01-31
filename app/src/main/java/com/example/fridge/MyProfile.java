@@ -102,7 +102,7 @@ public class MyProfile extends Fragment {
         });
 
         ImageView profilePic = getView().findViewById(R.id.prifilePicture);
-        profilePic.setImageResource(R.drawable.thom);
+        profilePic.setImageResource(R.drawable.alex);
 
         signOutB.setOnClickListener(new View.OnClickListener() {
             @Override
