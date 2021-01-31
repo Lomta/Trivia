@@ -69,7 +69,7 @@ public class MenuActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         String id = String.valueOf(user.getEmail().hashCode());
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        String path = "Users/" + id;
+        String path = "Users/" + id + "/UserName";
         DatabaseReference myRef = database.getReference(path);
 
         //TextView userN = findViewById(R.id.usernameT);

@@ -9,10 +9,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Fridge">
+        <activity android:name=".MyProfile"></activity>
+        <activity
+            android:name=".ProducersActivity"
+            android:label="@string/title_activity_producers"
+            android:theme="@style/Theme.Fridge.NoActionBar" />
+        <activity
+            android:name=".ProducerActivity2"
+            android:label="@string/title_activity_producer2"
+            android:theme="@style/Theme.Fridge.NoActionBar" />
         <activity
             android:name=".MenuActivity"
             android:label="@string/title_activity_menu"
-            android:theme="@style/Theme.Fridge.NoActionBar"></activity>
+            android:theme="@style/Theme.Fridge.NoActionBar" />
         <activity android:name=".EventsFeed" />
         <activity android:name=".MainActivity">
             <intent-filter>

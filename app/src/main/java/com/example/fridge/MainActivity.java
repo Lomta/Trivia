@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,11 +25,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "TAG something";
     private FirebaseAuth mAuth;
-
+    boolean switched = false;
+    Switch producerButto;
+    String isProducer = "false";
+    String username ="";
+    boolean newAcc = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference ref = database.getReference();
         DatabaseReference myRef = database.getReference("Users");
 
 
@@ -47,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
         usernameEditText.setVisibility(View.INVISIBLE);
         Button signUpButton = this.findViewById(R.id.signUpButton);
         signUpButton.setVisibility(View.INVISIBLE);
+        producerButto = this.findViewById(R.id.producerButton);
+        producerButto.setVisibility(View.INVISIBLE);
+        newAcc = false;
 
 
 
@@ -67,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 usernameEditText.setVisibility(View.VISIBLE);
                 signUpButton.setVisibility(View.VISIBLE);
                 registerText.setVisibility(View.INVISIBLE);
+                producerButto.setVisibility(View.VISIBLE);
             }
         });
 
@@ -75,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();
-                String username = usernameEditText.getText().toString();
+                username = usernameEditText.getText().toString();
+
+                if (producerButto.isChecked()) switched = true;
                 if (!email.equals("") && !(password.equals(""))) {
                     createAccount(email, password);
-                    String id = String.valueOf(email.hashCode());
-                    myRef.child(id).setValue(username);
                 }
             }
         });
@@ -90,16 +100,42 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null)
-            updateUI(currentUser);
-
-
+           updateUI(currentUser);
     }
 
     private void updateUI(FirebaseUser currentUser) {
         if (currentUser != null) {
-            Intent intent = new Intent(MainActivity.this, MenuActivity.class);
-            startActivity(intent);
-        }
+
+
+                String id = String.valueOf(currentUser.getEmail().hashCode());
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                String path = "Users/" + id;
+                System.out.println(path);
+                DatabaseReference myRef = database.getReference(path);
+                //myRef = myRef.getDatabase().getReference("IsProducer");
+                myRef = myRef.child("IsProducer");
+               myRef.addValueEventListener(new ValueEventListener() {
+                   @Override
+                   public void onDataChange(@NonNull DataSnapshot snapshot) {
+                       Intent intent;
+                       System.out.println(snapshot);
+                       isProducer = snapshot.getValue().toString();
+                       if (isProducer.equals("false")) {
+                           intent = new Intent(MainActivity.this, MenuActivity.class);
+                       }
+                       else {
+                           intent = new Intent(MainActivity.this, ProducersActivity.class);
+                       }
+
+                       startActivity(intent);
+                   }
+
+                   @Override
+                   public void onCancelled(@NonNull DatabaseError error) {
+
+                   }
+               });
+            }
     }
 
     private void createAccount(String email, String password) {
@@ -112,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            addData(user);
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -149,7 +186,17 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-
+private void addData(FirebaseUser user) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+    String id = String.valueOf(user.getEmail().hashCode());
+    DatabaseReference ref = database.getReference("Users");
+    ref.child(id).child("UserName").setValue(username);
+    if (switched)
+        ref.child(id).child("IsProducer").setValue("true");
+    else
+        ref.child(id).child("IsProducer").setValue("false");
+    newAcc = true;
+}
 
 
 }
